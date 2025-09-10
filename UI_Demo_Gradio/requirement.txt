@@ -2,3 +2,7 @@ gradio
 llama_index
 langchain_google_genai
 llama-index-embeddings-huggingface
+
+langchain
+langchain_community
+chromadb
