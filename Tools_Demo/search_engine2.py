@@ -1,0 +1,51 @@
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_community.utilities import SerpAPIWrapper
+from langchain.agents import initialize_agent, Tool, AgentType
+from langchain.prompts import PromptTemplate
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 🤖 Initialize Gemini LLM
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0)
+
+# 🔍 SerpAPI search wrapper
+search = SerpAPIWrapper()
+
+tools = [
+    Tool(
+        name="Job Search",
+        func=search.run,
+        description="Use this tool to search ONLY LinkedIn job postings"
+    )
+]
+
+# 🛠 Initialize agent
+job_search_agent = initialize_agent(
+    tools,
+    llm,
+    agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+    verbose=True
+)
+
+# Prompt to enforce JSON output
+query = """
+Find the top 3 job postings for 'Generative AI Developer' in Hyderabad 
+with more than 3 years of experience.
+Return the result strictly in the following JSON format:
+[
+  {
+    "Job_role": "string",
+    "Company" : "string",
+    "Location": "string",
+    "Years_of_experience": "string",
+    "Link": "string"
+  }
+]
+"""
+
+result = job_search_agent.run(query)
+
+# print("\n=== Job Search Results (JSON) ===\n")
+print(result)
